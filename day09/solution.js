@@ -3,12 +3,11 @@ import fs from 'fs/promises';
 const input = await fs.readFile('./input.txt', 'utf8');
 const lines = input.trim().split('\n');
 
-const ROPE_COUNT = process.env.part === 'part2' ? 9 : 1;
+const KNOT_COUNT = process.env.part === 'part2' ? 9 : 1;
 // [[x, y]]
-const VISITED = [[0, 0]];
-const H_POS = [0, 0];
+const VISITED = new Set();
 const K_POS = [];
-for (let n = 0; n < ROPE_COUNT; n++) {
+for (let n = 0; n <= KNOT_COUNT; n++) {
   K_POS.push([0, 0]);
 }
 
@@ -19,25 +18,25 @@ for (const line of lines) {
   while (n--) {
     switch (dir) {
       case 'U':
-        H_POS[1]--;
+        K_POS[0][1]--;
         break;
       case 'R':
-        H_POS[0]++;
+        K_POS[0][0]++;
         break;
       case 'D':
-        H_POS[1]++;
+        K_POS[0][1]++;
         break;
       case 'L':
-        H_POS[0]--;
+        K_POS[0][0]--;
         break;
-      default:
-        throw new Error(`Unknown dir ${dir}`);
     }
 
-    for (let n = 0; n < ROPE_COUNT; n++) {
+    for (let n = 1; n <= KNOT_COUNT; n++) {
+      const diffX = K_POS[n][0] - K_POS[n - 1][0];
+      const diffY = K_POS[n][1] - K_POS[n - 1][1];
+
       // Next knot position
-      const prev = n ? K_POS[n - 1] : H_POS;
-      const diff = `${K_POS[n][0] - prev[0]}${K_POS[n][1] - prev[1]}`;
+      const diff = [diffX, diffY].join('');
       switch (diff) {
         case '0-2': // above
           K_POS[n][1]++;
@@ -78,11 +77,8 @@ for (const line of lines) {
       }
     }
 
-    VISITED.push([...K_POS[K_POS.length - 1]]);
+    VISITED.add(K_POS[K_POS.length - 1].join(','));
   }
 }
 
-const UNIQUE = VISITED.filter((pos) =>
-  pos === VISITED.findLast(([x, y]) => pos[0] === x && pos[1] === y)
-);
-console.log(UNIQUE.length);
+console.log(VISITED.size);

@@ -1,0 +1,5 @@
+name = "day21"
+
+[dependencies]
+gleam_stdlib = "~> 0.25"
+gleam_erlang = "~> 0.17"
